@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useWriteContract, useAccount } from 'wagmi'
+import { useWriteContract, useReadContract, useAccount, useWaitForTransactionReceipt } from 'wagmi'
 import React, { useState, useEffect } from "react";
 import LoadingScreen from "../components/Loading";
 import { parseEther } from "viem";
@@ -58,23 +58,19 @@ const Intro = () => {
    // console.log("Value:", inputValue);
   };
 
-  const handleBet = async () => {
-    //const parsedEth = ethers.utils.parseEther() || 0;
-    console.log("Prediction Input: ", predictionInput);
-    console.log("ETH Amount: ", ethAmount);
-    console.log("Ape Amount: ", apeAmount);
+  const registerAddress = async () => {
     try {
-      const { hash } = await writeContract({
+      const hash = await writeContract({
         address: contractAddress,
         abi: MeetingContract.abi,
-        functionName: "placeBet",
-        args: [predictionInput, parseEther((apeAmount).toString())], //set positions
-        value: parseEther((ethAmount).toString()),
+        functionName: "registerUser",
+        args: [], //set positions
+        // value: parseEther((ethAmount).toString()),
       });
       setLoading(true);
-      await waitForTransaction({
+      await useWaitForTransactionReceipt(
         hash,
-      });
+      );
 
       setLoading(false);
       setMinted(true);
@@ -104,23 +100,6 @@ const Intro = () => {
     }
   };
 
-  const generateParameters = async () => {
-    try {
-      const params = [
-        { type: "string", name: "seasonID", value: "6" },
-        { type: "string", name: "_path", value: "data.0.id" },
-        { type: "string", name: "_type", value: "int256" },
-     ];
-     
-     const encodedData = encode(params);
-     //console.log("Decoded data:", decode(encodedData));
-     console.log("Encoded data:", encodedData);
-     return encodedData;
-
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   // useEffect(() => {
   //   handleBet(position);
