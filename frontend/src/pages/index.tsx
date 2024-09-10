@@ -3,6 +3,7 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import NAV from '../components/Nav';
+import INTRO from '../components/Intro';
 
 const Home: NextPage = () => {
   return (
@@ -17,13 +18,7 @@ const Home: NextPage = () => {
       </Head>
 
       <NAV />
-      <main className={styles.main}>
-
-        
-    <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
-   </main>
+      <INTRO />
 
     </div>
   );
