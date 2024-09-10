@@ -1,26 +1,15 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import {
-  getAccount,
-  fetchBalance,
-  readContract,
-  writeContract,
-  waitForTransaction,
-} from "@wagmi/core";
-import {
-  useAccount,
-  usePrepareContractWrite,
-  useContractWrite,
-  useContractRead,
-} from "wagmi";
+import { useWriteContract, useAccount } from 'wagmi'
 import React, { useState, useEffect } from "react";
-import LoadingScreen from "./Loading";
+import LoadingScreen from "../components/Loading";
 import { parseEther } from "viem";
-import MeetingContract from "../contract/contract.json";
+import MeetingContract from "../../contract/contract.json";
 
 
 
 const Intro = () => {
+  const { writeContract } = useWriteContract()
   const { address, isConnected } = useAccount();
   const [loading, setLoading] = useState<boolean>(false);
   const [minted, setMinted] = useState<boolean>(false);
@@ -35,7 +24,7 @@ const Intro = () => {
 
   const contractConfig = {
     address: contractAddress,
-    abi: PredictionContract.abi,
+    abi: MeetingContract.abi,
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +66,7 @@ const Intro = () => {
     try {
       const { hash } = await writeContract({
         address: contractAddress,
-        abi: PredictionContract.abi,
+        abi: MeetingContract.abi,
         functionName: "placeBet",
         args: [predictionInput, parseEther((apeAmount).toString())], //set positions
         value: parseEther((ethAmount).toString()),
