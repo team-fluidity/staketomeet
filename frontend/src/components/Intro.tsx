@@ -14,7 +14,6 @@ import React, { useState, useEffect } from "react";
 import LoadingScreen from "../components/Loading";
 import { parseEther } from "viem";
 import MeetingContract from "../../contract/contract.json";
-import BUTTON from "../components/Button";
 
 const Intro = () => {
   const { writeContract } = useWriteContract();
@@ -26,10 +25,10 @@ const Intro = () => {
   const [minted, setMinted] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const contractAddress = "0x7aad729622232F36117B369466F0f51e3ce951d6";
+  const CONTRACT_ADDRESS = "0x7aad729622232F36117B369466F0f51e3ce951d6";
 
   const contractConfig = {
-    address: contractAddress,
+    address: CONTRACT_ADDRESS,
     abi: MeetingContract.abi,
   };
 
@@ -56,7 +55,7 @@ const Intro = () => {
     try {
       const { request } = await publicClient.simulateContract({
         account: walletClient.account,
-        address: contractAddress,
+        address: CONTRACT_ADDRESS,
         abi: MeetingContract.abi,
         functionName: "registerUser",
         args: [], // set positions if needed

@@ -4,6 +4,7 @@ import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import NAV from '../components/Nav';
 import INTRO from '../components/Intro';
+import SCHEDULE from '../components/Schedule';
 
 const Home: NextPage = () => {
   return (
@@ -18,7 +19,8 @@ const Home: NextPage = () => {
       </Head>
 
       <NAV />
-      <INTRO />
+      {/* <INTRO /> */}
+      <SCHEDULE />
 
     </div>
   );
