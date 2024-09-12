@@ -13,7 +13,7 @@ import { type PublicClient, type WalletClient } from "viem";
 import React, { useState, useEffect } from "react";
 import LoadingScreen from "../components/Loading";
 import { parseEther } from "viem";
-import MeetingContract from "../../contract/contract.json";
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from './ContractConstants';
 
 const Intro = () => {
   const { writeContract } = useWriteContract();
@@ -25,24 +25,12 @@ const Intro = () => {
   const [minted, setMinted] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const CONTRACT_ADDRESS = "0x7aad729622232F36117B369466F0f51e3ce951d6";
+  // const CONTRACT_ADDRESS = "0x7aad729622232F36117B369466F0f51e3ce951d6";
 
   const contractConfig = {
     address: CONTRACT_ADDRESS,
-    abi: MeetingContract.abi,
+    abi: CONTRACT_ABI,
   };
-
-  // //Choose amount of Ape Insurance
-  // const handleApeInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setApeAmount(Number(event.target.value));
-  //   //setYoutubeId(event.target.value);
-  // };
-
-  // const handleSubmit = () => {
-  //   // Handle the submission of the YouTube ID here
-  //   sendRequest();
-  //   // console.log("Value:", inputValue);
-  // };
 
   const registerAddress = async () => {
     if (!publicClient || !walletClient) {
@@ -56,7 +44,7 @@ const Intro = () => {
       const { request } = await publicClient.simulateContract({
         account: walletClient.account,
         address: CONTRACT_ADDRESS,
-        abi: MeetingContract.abi,
+        abi: CONTRACT_ABI,
         functionName: "registerUser",
         args: [], // set positions if needed
       });
@@ -89,11 +77,12 @@ const Intro = () => {
             <div className="container relative mx-auto p-16 md:p-0">
               <div className="flex flex-col items-center justify-center -mt-6 md:mt-0 sm:-ml-0 md:-ml-12">
                 <div className="text-center md:text-left md:ml-16 space-y-4">
-                  <h1 className="text-4xl md:text-6xl font-bold text-center text-white mb-8">
-                    Get Paid for Your Time
-                  </h1>
+                  
                   {!loading && !minted && (
                     <>
+                    <h1 className="text-4xl md:text-6xl font-bold text-center text-white mb-8">
+                    Get Paid for Your Time
+                  </h1>
                       <h2 className="text-3xl md:text-5xl font-bold text-center text-white">
                         Register Your Address
                       </h2>

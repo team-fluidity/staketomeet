@@ -5,6 +5,7 @@ import styles from '../styles/Home.module.css';
 import NAV from '../components/Nav';
 import INTRO from '../components/Intro';
 import SCHEDULE from '../components/Schedule';
+import FLOW from '../components/Flow';
 
 const Home: NextPage = () => {
   return (
@@ -19,8 +20,7 @@ const Home: NextPage = () => {
       </Head>
 
       <NAV />
-      {/* <INTRO /> */}
-      <SCHEDULE />
+      <FLOW />
 
     </div>
   );
