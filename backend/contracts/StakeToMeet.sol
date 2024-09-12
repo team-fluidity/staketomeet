@@ -10,10 +10,12 @@ contract MeetingBooking {
         bool bookerCheckedIn;
         bool bookedCheckedIn;
         bool completed;
+        bool deleted;
     }
 
     mapping(address => bool) public registeredUsers;
     mapping(uint256 => Meeting) public meetings;
+    mapping(address => uint256[]) public userMeetings;
     uint256 public nextMeetingId;
 
     event UserRegistered(address user);
@@ -21,6 +23,7 @@ contract MeetingBooking {
     event UserCheckedIn(uint256 meetingId, address user);
     event MeetingCompleted(uint256 meetingId);
     event StakeReturned(uint256 meetingId, address recipient, uint256 amount);
+    event MeetingDeleted(uint256 meetingId);
 
     function registerUser() external {
         require(!registeredUsers[msg.sender], "User already registered");
@@ -42,14 +45,19 @@ contract MeetingBooking {
             stakedAmount: msg.value,
             bookerCheckedIn: false,
             bookedCheckedIn: false,
-            completed: false
+            completed: false,
+            deleted: false
         });
+
+        userMeetings[msg.sender].push(meetingId);
+        userMeetings[_booked].push(meetingId);
 
         emit MeetingBooked(meetingId, msg.sender, _booked, _startTime);
     }
 
     function checkIn(uint256 _meetingId) external {
         Meeting storage meeting = meetings[_meetingId];
+        require(!meeting.deleted, "Meeting has been deleted");
         require(msg.sender == meeting.booker || msg.sender == meeting.booked, "Not part of this meeting");
         require(!meeting.completed, "Meeting already completed");
         require(block.timestamp >= meeting.startTime, "Meeting hasn't started yet");
@@ -71,29 +79,84 @@ contract MeetingBooking {
         Meeting storage meeting = meetings[_meetingId];
         meeting.completed = true;
 
-        // Return stake to booker if both checked in
         if (meeting.bookerCheckedIn && meeting.bookedCheckedIn) {
             payable(meeting.booker).transfer(meeting.stakedAmount);
             emit StakeReturned(_meetingId, meeting.booker, meeting.stakedAmount);
-        } else if (meeting.bookerCheckedIn  && !meeting.bookedCheckedIn) {
-           // return stake to the booker if the booked person didn't check in
+        } else if (meeting.bookerCheckedIn && !meeting.bookedCheckedIn) {
             payable(meeting.booker).transfer(meeting.stakedAmount);
             emit StakeReturned(_meetingId, meeting.booker, meeting.stakedAmount);
         } else {
-            // Transfer stake to booked person if booker didn't check in
             payable(meeting.booked).transfer(meeting.stakedAmount);
             emit StakeReturned(_meetingId, meeting.booked, meeting.stakedAmount);
         }
 
         emit MeetingCompleted(_meetingId);
+
+        // Automatically delete the meeting and clean up user meetings
+        deleteMeeting(_meetingId);
+        cleanUpUserMeetings(meeting.booker);
+        cleanUpUserMeetings(meeting.booked);
     }
 
-    // Function to handle meetings that have ended without both parties checking in
     function handleEndedMeeting(uint256 _meetingId) external {
         Meeting storage meeting = meetings[_meetingId];
+        require(!meeting.deleted, "Meeting has been deleted");
         require(!meeting.completed, "Meeting already completed");
-        require(block.timestamp > meeting.startTime, "Meeting hasn't started yet"); // can add additional time to allow for check-in
+        require(block.timestamp > meeting.startTime, "Meeting hasn't started yet");
 
         completeMeeting(_meetingId);
+    }
+
+    function getUserMeetings(address _user) external view returns (uint256[] memory) {
+        return userMeetings[_user];
+    }
+
+    function getUserMeetingCount(address _user) external view returns (uint256) {
+        return userMeetings[_user].length;
+    }
+
+    function getPastMeetings(address _user) external view returns (uint256[] memory) {
+        uint256[] memory allMeetings = userMeetings[_user];
+        uint256[] memory pastMeetings = new uint256[](allMeetings.length);
+        uint256 count = 0;
+
+        for (uint256 i = 0; i < allMeetings.length; i++) {
+            if (!meetings[allMeetings[i]].deleted && meetings[allMeetings[i]].startTime < block.timestamp) {
+                pastMeetings[count] = allMeetings[i];
+                count++;
+            }
+        }
+
+        assembly {
+            mstore(pastMeetings, count)
+        }
+
+        return pastMeetings;
+    }
+
+    // Modified to be internal and called automatically
+    function deleteMeeting(uint256 _meetingId) internal {
+        Meeting storage meeting = meetings[_meetingId];
+        require(!meeting.deleted, "Meeting already deleted");
+
+        meeting.deleted = true;
+        emit MeetingDeleted(_meetingId);
+    }
+
+    // Modified to be internal and called automatically
+    function cleanUpUserMeetings(address user) internal {
+        uint256[] storage userMeetingList = userMeetings[user];
+        uint256 writeIndex = 0;
+
+        for (uint256 readIndex = 0; readIndex < userMeetingList.length; readIndex++) {
+            if (!meetings[userMeetingList[readIndex]].deleted) {
+                userMeetingList[writeIndex] = userMeetingList[readIndex];
+                writeIndex++;
+            }
+        }
+
+        while (userMeetingList.length > writeIndex) {
+            userMeetingList.pop();
+        }
     }
 }
