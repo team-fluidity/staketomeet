@@ -5,6 +5,7 @@ import INTRO from './Intro';
 import SCHEDULE from './Schedule';
 import MeetingRoom from './MeetingRoom';
 import LoadingScreen from './Loading';
+import WalletConnect from './WalletConnect';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from './ContractConstants';
 
 const UserFlow: React.FC = () => {
@@ -43,15 +44,6 @@ const UserFlow: React.FC = () => {
     }
   }, [isConnected, registrationStatus, isRegistrationLoading, isMeetingsLoading]);
 
-  // useEffect(() => {
-  //   if (!isMeetingsLoading && userMeetings) {
-  //     const latestMeeting = userMeetings[userMeetings.length - 1];
-  //     setHasScheduledMeeting(!!latestMeeting);
-  //     setMeetingId(latestMeeting || null);
-  //     setIsLoading(false);
-  //   }
-  // }, [userMeetings, isMeetingsLoading]);
-
   useEffect(() => {
     if (!isMeetingsLoading && userMeetings && userMeetings.length > 0) {
       const latestMeeting = userMeetings[userMeetings.length - 1];
@@ -70,7 +62,7 @@ const UserFlow: React.FC = () => {
   }
 
   if (!isConnected) {
-    return <div>Please connect your wallet</div>;
+    return <WalletConnect />;
   }
 
   if (!isRegistered) {
