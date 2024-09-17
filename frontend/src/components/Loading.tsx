@@ -3,9 +3,9 @@ import React from "react";
 
 const Loading = () => {
   return (
-    <div className="relative flex flex-col text-white items-center justify-center mb-10 md:mb-0 h-screen w-full">
-      <div className="absolute flex flex-col items-center justify-center">
-        <h2 className="text-white text-center justify-center text-3xl font-bold animate-pulse mb-10 md:mb-0 w-full drop-shadow-[0_2.2px_1.2px_rgba(0,0,0,0.8)]">
+    <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <h2 className="text-4xl font-bold text-[#ede8f5] animate-pulse">
           Loading...
         </h2>
       </div>

@@ -1,52 +1,84 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useAccount, useReadContract } from 'wagmi';
 import INTRO from './Intro';
 import SCHEDULE from './Schedule';
+import MeetingRoom from './MeetingRoom';
 import LoadingScreen from './Loading';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from './ContractConstants';
 
 const UserFlow: React.FC = () => {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isRegistered, setIsRegistered] = useState(false);
   const [hasScheduledMeeting, setHasScheduledMeeting] = useState(false);
-  const { address } = useAccount();
+  const [meetingId, setMeetingId] = useState<number | null>(null);
+  const { address, isConnected } = useAccount();
 
-  const { data: registrationStatus } = useReadContract({
+  const { data: registrationStatus, isLoading: isRegistrationLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'registeredUsers',
     args: [address],
-  }) as { data: boolean | undefined };
+    // enabled: !!address,
+  }) as { data: boolean | undefined; isLoading: boolean };
 
-  // You'll need to implement a function to check for scheduled meetings
-  // This is a placeholder and should be replaced with actual logic
-  const checkScheduledMeetings = async () => {
-    // Implement logic to check if user has scheduled meetings
-    // setHasScheduledMeeting(true/false) based on the result
-    setHasScheduledMeeting(false); // Placeholder
-  };
+  const { data: userMeetings, isLoading: isMeetingsLoading } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: 'getUserMeetings',
+    args: [address],
+    // enabled: !!address && isRegistered,
+  }) as { data: number[] | undefined; isLoading: boolean };
 
   useEffect(() => {
-    if (registrationStatus !== undefined) {
-      setIsRegistered(registrationStatus);
-      if (registrationStatus) {
-        checkScheduledMeetings();
-      }
+    if (!isConnected) {
       setIsLoading(false);
+      return;
     }
-  }, [registrationStatus]);
+
+    if (!isRegistrationLoading && registrationStatus !== undefined) {
+      setIsRegistered(registrationStatus);
+      setIsLoading(isMeetingsLoading);
+    }
+  }, [isConnected, registrationStatus, isRegistrationLoading, isMeetingsLoading]);
+
+  // useEffect(() => {
+  //   if (!isMeetingsLoading && userMeetings) {
+  //     const latestMeeting = userMeetings[userMeetings.length - 1];
+  //     setHasScheduledMeeting(!!latestMeeting);
+  //     setMeetingId(latestMeeting || null);
+  //     setIsLoading(false);
+  //   }
+  // }, [userMeetings, isMeetingsLoading]);
+
+  useEffect(() => {
+    if (!isMeetingsLoading && userMeetings && userMeetings.length > 0) {
+      const latestMeeting = userMeetings[userMeetings.length - 1];
+      setHasScheduledMeeting(true);
+      setMeetingId(Number(latestMeeting));
+      router.push(`/meeting-room/${latestMeeting}`);
+    } else {
+      setHasScheduledMeeting(false);
+      setMeetingId(null);
+    }
+    setIsLoading(false);
+  }, [userMeetings, isMeetingsLoading, router]);
 
   if (isLoading) {
     return <LoadingScreen />;
+  }
+
+  if (!isConnected) {
+    return <div>Please connect your wallet</div>;
   }
 
   if (!isRegistered) {
     return <INTRO />;
   }
 
-  if (hasScheduledMeeting) {
-    // Replace this with your MeetingCheckin component when it's created
-    return <div>Meeting Checkin Page (To be implemented)</div>;
+  if (hasScheduledMeeting && meetingId !== null) {
+    return <MeetingRoom meetingId={meetingId} />;
   }
 
   return <SCHEDULE />;
