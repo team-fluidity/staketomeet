@@ -6,8 +6,8 @@ import {
   usePublicClient,
   useWalletClient,
 } from "wagmi";
-import { parseEther } from "viem";
-import { waitForTransactionReceipt, type Hash } from "viem/actions";
+import { parseEther, type Hash } from "viem";
+import { waitForTransactionReceipt} from "viem/actions";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Link from "next/link";
