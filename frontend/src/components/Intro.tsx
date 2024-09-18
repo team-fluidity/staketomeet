@@ -67,7 +67,7 @@ const Intro = () => {
     }
   };
   return (
-    <div className="flex items-center justify-center min-h-screen pt-20">
+    <div className="flex items-center justify-center max-h-screen pt-36">
       <div className="bg-[#8697c4]/80 backdrop-blur-lg shadow-lg rounded-lg p-8 max-w-md w-full">
         <h1 className="text-3xl font-bold text-center mb-6">Get Paid for Your Time</h1>
         {!minted ? (
@@ -78,7 +78,7 @@ const Intro = () => {
               onClick={registerAddress}
               className="w-full bg-[#3d52a0] hover:bg-[#7091e6] text-white font-bold py-3 px-6 rounded-lg transition duration-300"
             >
-              Submit
+              Register
             </button>
           </>
         ) : (
