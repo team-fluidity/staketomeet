@@ -229,7 +229,7 @@ const MeetingRoom: React.FC<MeetingRoomProps> = ({ meetingId }) => {
             <p><strong>Booker:</strong> {processedMeetingDetails.booker}</p>
             <p><strong>Booked:</strong> {processedMeetingDetails.booked}</p>
             <p><strong>Status:</strong> {processedMeetingDetails.completed ? 'Completed' : 'In Progress'}</p>
-            <p><strong>Staked Amount:</strong> {formatEther(processedMeetingDetails.stakedAmount)} ETH</p>
+            <p><strong>Staked Amount:</strong> {formatEther(processedMeetingDetails.stakedAmount)} Avax</p>
             <p><strong>Booker Checked In:</strong> {processedMeetingDetails.bookerCheckedIn ? 'Yes' : 'No'}</p>
             <p><strong>Booked Checked In:</strong> {processedMeetingDetails.bookedCheckedIn ? 'Yes' : 'No'}</p>
             

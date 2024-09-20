@@ -293,7 +293,7 @@ const Schedule: React.FC = () => {
           </p>
           <p className="mb-2">
             <strong>Staked Amount:</strong>{" "}
-            {parseFloat(existingMeeting.stakedAmount.toString()) / 1e18} ETH
+            {parseFloat(existingMeeting.stakedAmount.toString()) / 1e18} Avax
           </p>
           <p className="mb-2">
             <strong>Booker Checked In:</strong>{" "}

@@ -59,7 +59,7 @@ const Header = () => {
         </div>
         {navbarOpen && (
           <div className="md:hidden py-4">
-            <Link href="https://goerli.basescan.org/address/0xba18f2dc2ce0b971f33236fdf76e227bf9d8ddbd" 
+            <Link href="https://testnet.snowtrace.io/address/0xAE40A252ad7E2BFc8a86c5f8724d807F5326cd43/contract/43113/code" 
                   className="block py-2 text-[#ede8f5] hover:text-[#adbbda] transition-colors"
                   target="_blank" 
                   rel="noreferrer">
