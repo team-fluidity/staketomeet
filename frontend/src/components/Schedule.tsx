@@ -367,7 +367,7 @@ const Schedule: React.FC = () => {
 
               <div>
                 <label htmlFor="stakeAmount" className="block text-sm font-medium mb-2">
-                  Stake Amount (ETH)
+                  Stake Amount (Avax)
                 </label>
                 <input
                   id="stakeAmount"
