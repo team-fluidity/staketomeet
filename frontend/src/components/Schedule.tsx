@@ -315,100 +315,88 @@ const Schedule: React.FC = () => {
   }
 
   return (
-    <div className="p-4 max-w-md mx-auto mt-28">
-      <h1 className="text-2xl font-bold mb-4">Book a Meeting</h1>
-
-      {isRegistered === false && (
-        <div className="mb-4">
-          <div
-            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
-            role="alert"
-          >
-            <p>You are not registered. Please register first.</p>
-          </div>
-          <button
-            onClick={handleRegister}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Register
-          </button>
-        </div>
-      )}
-
-      {isRegistered === true && (
-        <form
-          onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-            e.preventDefault();
-            handleBook();
-          }}
-          className="space-y-4"
-        >
-          <div>
-            <label
-              htmlFor="bookedAddress"
-              className="block text-sm font-medium text-gray-700 mb-2"
+    <div className="flex items-center justify-center max-h-screen pt-20">
+      <div className="bg-[#8697c4]/80 backdrop-blur-lg shadow-lg rounded-lg p-8 max-w-md w-full">
+        
+        {isRegistered === false && (
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold text-center mb-4">Register Your Address</h2>
+            <p className="text-center mb-6">You need to register before booking a meeting.</p>
+            <button
+              onClick={handleRegister}
+              className="w-full bg-[#3d52a0] hover:bg-[#7091e6] text-white font-bold py-3 px-6 rounded-lg transition duration-300"
             >
-              Booked Address
-            </label>
-            <input
-              id="bookedAddress"
-              type="text"
-              value={bookedAddress}
-              onChange={handleBookedAddressChange}
-              placeholder="0x..."
-              required
-              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
+              Register
+            </button>
           </div>
+        )}
 
-          <div>
-            <label
-              htmlFor="datePicker"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Select Date and Time
-            </label>
-            <DatePicker
-              id="datePicker"
-              selected={selectedDate}
-              onChange={(date: Date | null) => setSelectedDate(date)}
-              showTimeSelect
-              dateFormat="Pp"
-              minDate={new Date()}
-              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
+        {isRegistered === true && (
+          <>
+            <h2 className="text-2xl font-semibold text-center mb-4">Book a Meeting</h2>
+            <form onSubmit={(e) => { e.preventDefault(); handleBook(); }} className="space-y-4">
+              <div>
+                <label htmlFor="bookedAddress" className="block text-sm font-medium mb-2">
+                  Booked Address
+                </label>
+                <input
+                  id="bookedAddress"
+                  type="text"
+                  value={bookedAddress}
+                  onChange={handleBookedAddressChange}
+                  placeholder="0x..."
+                  required
+                  className="w-full px-3 py-2 bg-white text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3d52a0]"
+                />
+              </div>
 
-          <div>
-            <label
-              htmlFor="stakeAmount"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Stake Amount (ETH)
-            </label>
-            <input
-              id="stakeAmount"
-              type="number"
-              value={stakeAmount}
-              onChange={handleStakeAmountChange}
-              placeholder="0.1"
-              step="0.01"
-              min="0"
-              required
-              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
+              <div>
+                <label htmlFor="datePicker" className="block text-sm font-medium mb-2">
+                  Select Date and Time
+                </label>
+                <DatePicker
+                  id="datePicker"
+                  selected={selectedDate}
+                  onChange={(date: Date | null) => setSelectedDate(date)}
+                  showTimeSelect
+                  dateFormat="Pp"
+                  minDate={new Date()}
+                  className="w-full px-3 py-2 bg-white text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3d52a0]"
+                />
+              </div>
 
-          <button
-            type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Book Meeting
-          </button>
-        </form>
-      )}
+              <div>
+                <label htmlFor="stakeAmount" className="block text-sm font-medium mb-2">
+                  Stake Amount (ETH)
+                </label>
+                <input
+                  id="stakeAmount"
+                  type="number"
+                  value={stakeAmount}
+                  onChange={handleStakeAmountChange}
+                  placeholder="0.1"
+                  step="0.01"
+                  min="0"
+                  required
+                  className="w-full px-3 py-2 bg-white text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3d52a0]"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-[#3d52a0] hover:bg-[#7091e6] text-white font-bold py-3 px-6 rounded-lg transition duration-300"
+              >
+                Book Meeting
+              </button>
+            </form>
+          </>
+        )}
+
+        {error && (
+          <p className="mt-4 text-red-500 text-center">{error}</p>
+        )}
+      </div>
     </div>
   );
 };
-
 export default Schedule;

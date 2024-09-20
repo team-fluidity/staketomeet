@@ -6,6 +6,7 @@ import { formatEther } from "viem";
 import Link from 'next/link';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from './ContractConstants';
 import LoadingScreen from './Loading';
+import NAV from './Nav';
 
 interface MeetingDetails {
   booker: string;
@@ -19,7 +20,7 @@ interface MeetingDetails {
 }
 
 interface MeetingRoomProps {
-  meetingId: string | string[] | number | undefined;
+  meetingId: string | string[] | undefined | number;
 }
 
 const MeetingRoom: React.FC<MeetingRoomProps> = ({ meetingId }) => {
@@ -69,12 +70,10 @@ const MeetingRoom: React.FC<MeetingRoomProps> = ({ meetingId }) => {
     abi: CONTRACT_ABI,
     functionName: 'meetings',
     args: safeMeetingId !== null ? [safeMeetingId] : undefined,
-  }) as { 
-    data: any[] | undefined; 
-    isLoading: boolean;
-    isError: boolean;
-    error: Error | null;
-  };
+    query: {
+      enabled: safeMeetingId !== null,
+    },
+  });
 
   useEffect(() => {
     console.log("Safe Meeting ID:", safeMeetingId);
@@ -122,13 +121,18 @@ const MeetingRoom: React.FC<MeetingRoomProps> = ({ meetingId }) => {
     console.log("Current address:", address);
   }, [isConnected, address]);
 
+  const isMeetingTimeReached = (startTime: bigint): boolean => {
+    const currentTime = BigInt(Math.floor(Date.now() / 1000));
+    return currentTime >= startTime;
+  };
+
   const handleCheckIn = async () => {
     console.log("Checking in...");
     console.log("Public Client:", !!publicClient);
     console.log("Wallet Client:", !!walletClient);
     console.log("Address:", address);
     console.log("Safe Meeting ID:", safeMeetingId);
-  
+
     if (!publicClient || !walletClient || !address || safeMeetingId === null) {
       console.log("Check-in failed. Missing:", {
         publicClient: !publicClient,
@@ -139,9 +143,15 @@ const MeetingRoom: React.FC<MeetingRoomProps> = ({ meetingId }) => {
       setError("Wallet not connected or invalid meeting ID");
       return;
     }
+
+    if (processedMeetingDetails && !isMeetingTimeReached(processedMeetingDetails.startTime)) {
+      setError("Meeting hasn't started yet. Please wait until the scheduled time to check in.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
-  
+
     try {
       const { request } = await publicClient.simulateContract({
         account: walletClient.account,
@@ -150,14 +160,14 @@ const MeetingRoom: React.FC<MeetingRoomProps> = ({ meetingId }) => {
         functionName: "checkIn",
         args: [safeMeetingId],
       });
-  
+
       const hash = await walletClient.writeContract(request);
       console.log("Transaction sent:", hash);
-  
+
       const receipt = await waitForTransactionReceipt(publicClient, {
         hash,
       });
-  
+
       console.log("Transaction confirmed:", receipt.transactionHash);
       setIsCheckedIn(true);
     } catch (err) {
@@ -174,7 +184,7 @@ const MeetingRoom: React.FC<MeetingRoomProps> = ({ meetingId }) => {
     console.log("Wallet Client:", !!walletClient);
     console.log("Address:", address);
     console.log("Safe Meeting ID:", safeMeetingId);
-  
+
     if (!publicClient || !walletClient || !address || safeMeetingId === null) {
       console.log("End meeting failed. Missing:", {
         publicClient: !publicClient,
@@ -187,7 +197,7 @@ const MeetingRoom: React.FC<MeetingRoomProps> = ({ meetingId }) => {
     }
     setLoading(true);
     setError(null);
-  
+
     try {
       const { request } = await publicClient.simulateContract({
         account: walletClient.account,
@@ -196,14 +206,14 @@ const MeetingRoom: React.FC<MeetingRoomProps> = ({ meetingId }) => {
         functionName: "handleEndedMeeting",
         args: [safeMeetingId],
       });
-  
+
       const hash = await walletClient.writeContract(request);
       console.log("Transaction sent:", hash);
-  
+
       const receipt = await waitForTransactionReceipt(publicClient, {
         hash,
       });
-  
+
       console.log("Transaction confirmed:", receipt.transactionHash);
       router.push('/');
     } catch (err) {
@@ -219,6 +229,8 @@ const MeetingRoom: React.FC<MeetingRoomProps> = ({ meetingId }) => {
   }
 
   return (
+    <>
+    <NAV />
     <div className="flex items-center justify-center min-h-screen pt-20">
       <div className="bg-[#8697c4]/80 backdrop-blur-lg shadow-lg rounded-lg p-8 max-w-md w-full">
         <h1 className="text-2xl font-bold mb-6">Meeting Room</h1>
@@ -234,12 +246,24 @@ const MeetingRoom: React.FC<MeetingRoomProps> = ({ meetingId }) => {
             <p><strong>Booked Checked In:</strong> {processedMeetingDetails.bookedCheckedIn ? 'Yes' : 'No'}</p>
             
             {!isCheckedIn && !processedMeetingDetails.completed && (
-              <button
-                onClick={handleCheckIn}
-                className="w-full bg-[#3d52a0] hover:bg-[#7091e6] text-white font-bold py-3 px-6 rounded-lg transition duration-300"
-              >
-                Check In
-              </button>
+              <>
+                <button
+                  onClick={handleCheckIn}
+                  className={`w-full ${
+                    isMeetingTimeReached(processedMeetingDetails.startTime)
+                      ? "bg-[#3d52a0] hover:bg-[#7091e6]"
+                      : "bg-gray-400 cursor-not-allowed"
+                  } text-white font-bold py-3 px-6 rounded-lg transition duration-300`}
+                  disabled={!isMeetingTimeReached(processedMeetingDetails.startTime)}
+                >
+                  Check In
+                </button>
+                {!isMeetingTimeReached(processedMeetingDetails.startTime) && (
+                  <p className="text-yellow-500 text-sm text-center">
+                    Check-in will be available when the meeting starts.
+                  </p>
+                )}
+              </>
             )}
             
             {isCheckedIn && !processedMeetingDetails.completed && (
@@ -260,6 +284,7 @@ const MeetingRoom: React.FC<MeetingRoomProps> = ({ meetingId }) => {
         </Link>
       </div>
     </div>
+    </>
   );
 };
 
